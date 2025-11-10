@@ -1,0 +1,4 @@
+google-genai
+sqlalchemy
+pillow
+dotenv
