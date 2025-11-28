@@ -12,6 +12,9 @@ prompt = os.getenv('PROMPT')
 INPUT_FILE_PATH = os.path.join('resources/writing/', source)
 USED_FILES_PATH = os.path.join('resources/writing/', source, 'used')  
 
+current_model="gemini-2.5-pro"
+new_model="gemini-3-pro-preview"
+
 response_schema = Schema(
     type=Type.ARRAY,
     description="A list of all extracted quotes.",
@@ -28,7 +31,7 @@ def read_post(file_path: str) -> str:
 
     return blog_text
 
-def extract_quotes(prompt, content):
+def extract_quotes(prompt, content, model):
 
     client = genai.Client()
 
@@ -43,7 +46,7 @@ def extract_quotes(prompt, content):
 
     try:
         response = client.models.generate_content(
-            model="gemini-2.5-pro",
+            model=model,
             contents=full_prompt,
             config={
                 "response_mime_type": "application/json",
@@ -73,7 +76,7 @@ if __name__ == '__main__':
     for post in post_files:
         post_path = os.path.join(INPUT_FILE_PATH, post)
         content = read_post(post_path)
-        response = extract_quotes(prompt, content)
+        response = extract_quotes(prompt, content, new_model)
         quote_list = process_json(response)
         save_quotes(quote_list, post, lang)
         shutil.move(post_path, USED_FILES_PATH)
