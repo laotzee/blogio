@@ -1,9 +1,11 @@
 import os, json, shutil, sys
+import frontmatter
 from google import genai
 from google.genai.types import Schema, Type
 from dotenv import load_dotenv
 from src.db.helpers import save_quotes
 from src.utils.helpers import check_language, get_input_files
+
     
 lang, source = check_language(sys.argv)
 load_dotenv()
@@ -12,8 +14,7 @@ prompt = os.getenv('PROMPT')
 INPUT_FILE_PATH = os.path.join('resources/writing/', source)
 USED_FILES_PATH = os.path.join('resources/writing/', source, 'used')  
 
-current_model="gemini-2.5-pro"
-new_model="gemini-3-pro-preview"
+current_model="gemini-3-flash-preview"
 
 response_schema = Schema(
     type=Type.ARRAY,
@@ -75,8 +76,8 @@ if __name__ == '__main__':
     post_files = get_input_files(INPUT_FILE_PATH)
     for post in post_files:
         post_path = os.path.join(INPUT_FILE_PATH, post)
-        content = read_post(post_path)
-        response = extract_quotes(prompt, content, new_model)
+        post = frontmatter.load(post_path)
+        response = extract_quotes(prompt, post.content, current_model)
         quote_list = process_json(response)
-        save_quotes(quote_list, post, lang)
+        save_quotes(quote_list, post['title'], lang)
         shutil.move(post_path, USED_FILES_PATH)
