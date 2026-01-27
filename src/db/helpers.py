@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, select, func
+from sqlalchemy import create_engine, select, func, update
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.engine import Engine
 from .models import Quote, Language, Base
@@ -26,14 +26,15 @@ def initialize_database(eng: Engine | None = None):
         print(f"Error creating database tables: {e}")
 
 
-def add_quote(quote: str, post_title: str, language_id: int, db):
+def add_quote(quote: str, post_title: str, language_id: int, 
+              session: SessionLocal):
     """Create a new instance of quote"""
     quote = Quote(
             text=quote,
             title=post_title,
             language_id=language_id
         )
-    db.add(quote)
+    session.add(quote)
 
 
 def save_quotes(quotes: list, post_title: str, lang: int):
@@ -41,66 +42,73 @@ def save_quotes(quotes: list, post_title: str, lang: int):
     Saves to the database a list of quotes keeping track of their title and
     language
     """
-    db = SessionLocal()
+    session = SessionLocal()
     for quote in quotes:
-        add_quote(quote, post_title, lang, db)
-    db.commit()
+        add_quote(quote, post_title, lang, session)
+    session.commit()
 
 
-def update_rendered_quote(quote: Quote, img_path: str, db):
+def update_rendered_quote(quote: Quote, img_path: str, session: SessionLocal):
     """Update is_used state and img_name for a quote"""
-    db = SessionLocal()
+    session = SessionLocal()
     quote.is_rendered = True
     quote.img_path = img_path
-    db.commit()
+    session.commit()
 
 
-def unrendered_quotes(lang, db):
+def unrendered_quotes(lang: int, session: SessionLocal):
+    """Returns all unrendered quotes from a given language"""
     stmt = select(Quote).where(Quote.is_rendered == False,
                                Quote.language_id == lang)
-    quotes = db.scalars(stmt).all()
+    quotes = session.scalars(stmt).all()
     return quotes
 
-def unpublished_quote(lang):
 
-    db = SessionLocal()
+def unpublished_quote(lang: int) -> Quote:
+    """Returns all an unpublished quote from a given language"""
+
+    session = SessionLocal()
     stmt = (
         select(Quote)
         .where(Quote.language_id==lang, Quote.is_published == False)
         .order_by(func.random())
         .limit(1)
     )
-    quote = db.scalar(stmt)
+    quote = session.scalar(stmt)
     return quote
 
 
 def update_published_quote(quote_id: int):
     """Update is_used state and img_name for a quote"""
-    db = SessionLocal()
-    quote = db.get(Quote, quote_id)
+    session = SessionLocal()
+    quote = session.get(Quote, quote_id)
     quote.is_published = True
-    db.commit()
+    session.commit()
+
+
+def count_unique_titles(lang: int) -> int:
+    """Return the number of unique posts from a given language"""
+    session = SessionLocal()
+    stmt = (select(func.count(Quote.title.distinct()))
+            .where(Quote.language_id == lang))
+
+    unique_titles_amount = session.execute(stmt).scalar()
+    return unique_titles_amount
 
 
 if __name__ == '__main__':
 
     initialize_database()
-    db = SessionLocal()
+    session = SessionLocal()
     lang1 = Language(
             name='English',
         )
     lang2 = Language(
             name='Spanish',
         )
-    db.add(lang1)
-    db.add(lang2)
+    session.add(lang1)
+    session.add(lang2)
     try:
-        db.commit()
+        session.commit()
     except IntegrityError:
         pass
-
-
-
-
-
-

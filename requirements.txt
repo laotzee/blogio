@@ -2,3 +2,4 @@ google-genai
 sqlalchemy
 pillow
 dotenv
+python-frontmatter
