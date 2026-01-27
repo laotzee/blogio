@@ -3,7 +3,8 @@ import shutil
 from PIL import Image, ImageDraw, ImageFont
 from src.utils.helpers import get_input_files
 
-TITLE = "Dialogues"
+TITLE = "Human Dialogues"
+LOGO = "resources/misc/logo.png"
 
 INPUT_FILE_PATH = 'resources/background'
 USED_FILES_PATH = 'resources/background/used'
@@ -13,11 +14,12 @@ TITLE_SIZE = 64
 FONT = ImageFont.truetype(FONT_PATH, TITLE_SIZE)
 
 IMG_SIZE = (1080, 1440)
-BACKGROUND_COLOR = (0, 0, 0, 180) 
-TEXT_COLOR = (255, 255, 255)
+BACKGROUND_COLOR = (247, 247, 247, 180) 
+TEXT_COLOR = (136, 8, 8)
 IMG_PROPORTION = (3,4)
 
 X, Y = 20, 1200
+LOGO_X, LOGO_Y = 508, 256
 PADDING = 30
 
 def proportion_cal(prop: tuple[int,int],
@@ -81,6 +83,11 @@ def create_logo(text: str) -> Image:
     overlay = create_overlay(IMG_SIZE[0], IMG_SIZE[1])
     blog_title = ImageDraw.Draw(overlay)
 
+    logo = Image.open(LOGO)
+    logo = logo.resize((256, 256), Image.LANCZOS)
+    position = (824, 100)
+    overlay.paste(logo, position, logo)
+
     text_w, text_h = get_text_dimensions(blog_title, text, font=FONT)
 
     blog_title.rounded_rectangle(
@@ -141,7 +148,13 @@ def standardize_background(file_name: str,
 
     final_image = Image.alpha_composite(img, overlay)
     final_image = final_image.convert("RGB")
-    final_image.save(os.path.join(OUTPUT_FILE_PATH, file_name), format="JPEG")
+    final_image.save(
+            os.path.join(OUTPUT_FILE_PATH, file_name),
+            format="JPEG",
+            quality=95,
+            subsampling=0,
+            optimize=True,
+            )
     try:
         shutil.move(img_path, USED_FILES_PATH)
         
@@ -151,5 +164,5 @@ def standardize_background(file_name: str,
 
 if __name__ == '__main__':
     files_only = get_input_files(INPUT_FILE_PATH)
-    for file in files_only:
+    for file in files_only[:2]:
         standardize_background(file, TITLE, IMG_SIZE)
