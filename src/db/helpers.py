@@ -16,6 +16,8 @@ SessionLocal = sessionmaker(
     bind=engine
 )
 
+session = SessionLocal()
+
 def initialize_database(eng: Engine | None = None):
     """Initializes the database by creating all tables defined models """
     print("Attempting to create database tables...")
