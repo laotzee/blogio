@@ -6,10 +6,10 @@ def check_language(lang: list) -> tuple:
         print("No arguments given")
         exit()
     elif lang[1] not in valid_lang:
-        print(f'Invalid argument given. It must be some of {valid_lang}')
+        print(f'Invalid argument given. It must be any of {valid_lang}')
         print(lang)
         exit()
-    lang = (1, valid_lang[0]) if lang[1] == 'en' else (2, 'es')
+    lang = (1, valid_lang[0]) if lang[1] == 'en' else (2, valid_lang[1])
     return lang
 
 
