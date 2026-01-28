@@ -3,6 +3,7 @@
 
 mkdir -p resources/background/used
 mkdir -p resources/factory_background
+mkdir -p resources/misc
 mkdir -p resources/fonts/DMSerif
 mkdir -p resources/fonts/roboto
 mkdir -p resources/posts/en/used
