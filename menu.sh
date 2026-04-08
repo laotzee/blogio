@@ -34,7 +34,6 @@ while [ $active -eq 1 ]; do
     echo "$logo"
     show_menu
     read option
-    clear
     if [[ $option =~ ^[0-4]$ ]]; then
         if [ $option -eq 0 ]; then
             active=0 
