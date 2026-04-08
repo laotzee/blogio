@@ -18,7 +18,7 @@ INPUT_FILE_PATH = os.path.join("resources/writing/", source)
 USED_FILES_PATH = os.path.join("resources/writing/", source, "used")
 MAX_CONCURRENT_REQUESTS = 5
 MAX_POST_PER_BATCH = 15
-current_model = "gemini-3-flash-preview"
+current_model = "gemini-3.1-flash-lite-preview"
 
 semaphore = asyncio.Semaphore(MAX_CONCURRENT_REQUESTS)
 
